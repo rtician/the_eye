@@ -29,5 +29,5 @@ if [[ ! -z "$@" ]]; then
 elif [[ "$DEV_SERVER" = "1" ]]; then
     python ./manage.py runserver 0.0.0.0:8080
 else
-    uwsgi  --http :8000 --wsgi-file the_eye.wsgi.py
+    gunicorn -w 4 -b 0.0.0.0:8080 the_eye.wsgi
 fi
