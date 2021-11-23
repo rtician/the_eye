@@ -1,0 +1,36 @@
+version: '3.5'
+services:
+  the-eye-app:
+    container_name: the-eye-app
+    image: the-eye-image
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ../:/opt/app
+    depends_on:
+      - the-eye-psql
+    links:
+      - the-eye-psql:postgresql
+    environment:
+      APPLY_MIGRATIONS: 1
+      DEV_SERVER: 1
+      DATABASE_HOST: postgresql
+      LOAD_STATIC_FILE: 1
+    ports:
+      - "8080:8080"
+
+  the-eye-psql:
+      image: postgres:13-alpine
+      container_name: the-eye-psql
+      restart: unless-stopped
+      environment:
+        LC_ALL: C.UTF-8
+        POSTGRES_USER: app
+        POSTGRES_PASSWORD: randomP@ssword!
+        POSTGRES_DB: the_eye
+      volumes:
+          - pgdata:/var/lib/postgresql/data/
+
+volumes:
+  pgdata:
