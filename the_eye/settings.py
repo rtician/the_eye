@@ -72,14 +72,18 @@ WSGI_APPLICATION = 'the_eye.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'the_eye',
+        'USER': 'app',
+        'PASSWORD': 'randomP@ssword!',
+        'HOST': 'postgresql',
     }
 }
 
+# Celery
+BROKER_URL = 'amqp://app:R@bbitmqPass!@rabbitmq:5672//'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

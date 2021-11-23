@@ -1,6 +1,6 @@
 version: '3.5'
 services:
-  the-eye-app:
+  the-eye-app: &base-container
     container_name: the-eye-app
     image: the-eye-image
     build:
@@ -10,15 +10,16 @@ services:
       - ../:/opt/app
     depends_on:
       - the-eye-psql
+      - the-eye-rabbitmq
     links:
       - the-eye-psql:postgresql
+      - the-eye-rabbitmq:rabbitmq
     environment:
       APPLY_MIGRATIONS: 1
       DEV_SERVER: 1
       DATABASE_HOST: postgresql
       LOAD_STATIC_FILE: 1
-    ports:
-      - "8080:8080"
+      DJANGO_SETTINGS_MODULE: the_eye.settings
 
   the-eye-psql:
       image: postgres:13-alpine
@@ -31,6 +32,18 @@ services:
         POSTGRES_DB: the_eye
       volumes:
           - pgdata:/var/lib/postgresql/data/
+  
+  the-eye-celery:
+    <<: *base-container
+    container_name: the-eye-celery
+    entrypoint: bash -c "celery -A the_eye worker -c 8 -l INFO"
+
+  the-eye-rabbitmq:
+    container_name: the-eye-rabbitmq
+    image: rabbitmq:3.8-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=app
+      - RABBITMQ_DEFAULT_PASS=R@bbitmqPass!
 
 volumes:
   pgdata:
