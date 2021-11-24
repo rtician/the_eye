@@ -4,6 +4,8 @@ from uuid import UUID
 
 import pytest
 
+from events.models import Session
+
 VALID_DATA = {
     'name': 'foo',
     'category': 'foo',
@@ -21,6 +23,8 @@ def test_contains_expected_fields(event_serializer):
     fields = ['name', 'category', 'data', 'timestamp', 'session']
     assert fields == list(event_serializer.data.keys())
 
+    Session.objects.get(id=event_serializer.data['session']).delete()
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('event_serializer', [VALID_DATA], indirect=True)
@@ -33,6 +37,8 @@ def test_create_valid_event(event_serializer):
         data['timestamp'] = datetime.strptime(data['timestamp'], '%Y-%m-%d %H:%M:%S.%f')
         data['session_id'] = UUID(data.pop('session'))
         mocked_task.delay.assert_called_with(data)
+
+    Session.objects.get(id=data['session_id'].hex).delete()
 
 
 @pytest.mark.django_db

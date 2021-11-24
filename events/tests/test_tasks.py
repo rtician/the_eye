@@ -1,16 +1,12 @@
-import uuid
-
 import pytest
 
-from events.models import Event, Session
+from events.models import Event
 from events.tasks import create_event
 
 
 @pytest.mark.django_db
-def test_create_event(new_application):
+def test_create_event(session):
     assert 0 == Event.objects.all().count()
-
-    session = Session.objects.create(id=uuid.uuid4(), app=new_application)
 
     payload = {
         'session_id': session.id,
@@ -26,5 +22,3 @@ def test_create_event(new_application):
     assert 1 == Event.objects.all().count()
 
     Event.objects.all().delete()
-    session.delete()
-    new_application.delete()

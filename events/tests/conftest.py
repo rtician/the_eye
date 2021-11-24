@@ -1,8 +1,9 @@
+import uuid
 from unittest.mock import Mock
 
 import pytest
 
-from events.models import Application
+from events.models import Application, Session
 from events.serializers import EventSerializer
 
 
@@ -12,11 +13,20 @@ def mocked_request():
 
 
 @pytest.fixture
-def new_application():
-    return Application.objects.create(name='foo')
+def application():
+    app = Application.objects.create(name='foo')
+    yield app
+    app.delete()
 
 
 @pytest.fixture
-def event_serializer(new_application, request):
+def session(application):
+    session = Session.objects.create(id=uuid.uuid4(), app=application)
+    yield session
+    session.delete()
+
+
+@pytest.fixture
+def event_serializer(application, request):
     data = request.param
-    return EventSerializer(data=data, app=new_application)
+    return EventSerializer(data=data, app=application)

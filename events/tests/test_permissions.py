@@ -10,9 +10,7 @@ def test_invalid_permission_application_token(mocked_request):
 
 
 @pytest.mark.django_db
-def test_valid_permission_application_token(mocked_request, new_application):
-    mocked_request.META['HTTP_AUTHORIZATION'] = new_application.token
+def test_valid_permission_application_token(mocked_request, application):
+    mocked_request.META['HTTP_AUTHORIZATION'] = application.token
     validor = IsValidApplication()
     assert validor.has_permission(mocked_request, None)
-
-    new_application.delete()
