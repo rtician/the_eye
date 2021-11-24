@@ -2,6 +2,7 @@ import uuid
 from unittest.mock import Mock
 
 import pytest
+from rest_framework.test import APIClient
 
 from events.models import Application, Session
 from events.serializers import EventSerializer
@@ -17,6 +18,11 @@ def application():
     app = Application.objects.create(name='foo')
     yield app
     app.delete()
+
+
+@pytest.fixture
+def client():
+    return APIClient()
 
 
 @pytest.fixture

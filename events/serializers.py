@@ -5,30 +5,36 @@ from events.tasks import create_event
 
 
 class EventSerializer(serializers.ModelSerializer):
-    session = serializers.UUIDField(required=True)
+    session_id = serializers.UUIDField(required=True)
     data = serializers.DictField(required=True)
 
     class Meta:
         model = Event
-        fields = ('name', 'category', 'data', 'timestamp', 'session')
+        fields = ('name', 'category', 'data', 'timestamp', 'session_id')
 
     def __init__(self, *args, **kwargs):
         self.app = kwargs.pop('app')
         super().__init__(*args, **kwargs)
 
     def validate(self, attrs):
-        session = attrs['session']
+        session = attrs['session_id']
         try:
             Session.objects.get(id=session)
         except Session.DoesNotExist:
             Session.objects.create(id=session, app=self.app)
 
-        attrs['session_id'] = session
         return attrs
 
     def create(self, validated_data):
-        del validated_data['session']
         event = Event(**validated_data)
-        create_event.delay(validated_data)
+
+        json_data = {
+            'name': event.name,
+            'category': event.category,
+            'data': event.data,
+            'timestamp': str(event.timestamp),
+            'session_id': str(event.session.id),
+        }
+        create_event.delay(json_data)
 
         return event

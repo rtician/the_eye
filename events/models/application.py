@@ -21,5 +21,5 @@ class Application(models.Model):
 
     def save(self, **kwargs):
         if not self.token:
-            self.token = self.unique_token_generator()
+            self.token = str(self.unique_token_generator())
         super(Application, self).save(**kwargs)

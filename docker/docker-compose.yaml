@@ -20,6 +20,8 @@ services:
       DATABASE_HOST: postgresql
       LOAD_STATIC_FILE: 1
       DJANGO_SETTINGS_MODULE: the_eye.settings
+    ports:
+      - "8080:8080"
 
   the-eye-psql:
       image: postgres:13-alpine
@@ -36,6 +38,8 @@ services:
   the-eye-celery:
     <<: *base-container
     container_name: the-eye-celery
+    ports:
+      - "5555:5555"
     entrypoint: bash -c "celery -A the_eye worker -c 8 -l INFO"
 
   the-eye-rabbitmq:

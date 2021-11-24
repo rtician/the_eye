@@ -11,7 +11,7 @@ VALID_DATA = {
     'category': 'foo',
     'data': {},
     'timestamp': '2021-01-01 09:15:27.243860',
-    'session': 'e2085be5-9137-4e4e-80b5-f1ffddc25423',
+    'session_id': 'e2085be5-9137-4e4e-80b5-f1ffddc25423',
 }
 
 
@@ -20,10 +20,10 @@ VALID_DATA = {
 def test_contains_expected_fields(event_serializer):
     event_serializer.is_valid()
 
-    fields = ['name', 'category', 'data', 'timestamp', 'session']
+    fields = ['name', 'category', 'data', 'timestamp', 'session_id']
     assert fields == list(event_serializer.data.keys())
 
-    Session.objects.get(id=event_serializer.data['session']).delete()
+    Session.objects.get(id=event_serializer.data['session_id']).delete()
 
 
 @pytest.mark.django_db
@@ -34,11 +34,9 @@ def test_create_valid_event(event_serializer):
     with patch('events.serializers.create_event') as mocked_task:
         event_serializer.save()
         data = VALID_DATA.copy()
-        data['timestamp'] = datetime.strptime(data['timestamp'], '%Y-%m-%d %H:%M:%S.%f')
-        data['session_id'] = UUID(data.pop('session'))
         mocked_task.delay.assert_called_with(data)
 
-    Session.objects.get(id=data['session_id'].hex).delete()
+    Session.objects.get(id=data['session_id']).delete()
 
 
 @pytest.mark.django_db
@@ -47,6 +45,6 @@ def test_invalid_data_serializer(event_serializer):
     assert event_serializer.is_valid() is False
 
     # assert that all fields have errors
-    fields = ['name', 'category', 'data', 'timestamp', 'session']
+    fields = ['name', 'category', 'data', 'timestamp', 'session_id']
     assert fields == list(event_serializer.errors.keys())
 
