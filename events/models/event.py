@@ -11,7 +11,7 @@ class Event(models.Model):
 
     class Meta:
         app_label = 'events'
-        db_table = 'session'
+        db_table = 'event'
         ordering = ('-timestamp',)
         indexes = (
             models.Index(fields=['timestamp'], name='timestamp_idx'),
