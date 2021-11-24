@@ -1,8 +1,21 @@
+DOCKER_COMPOSE=docker-compose -f docker/docker-compose.yaml
+APP=$(DOCKER_COMPOSE) run the-eye-app
+
+build:
+	$(DOCKER_COMPOSE) up --build
+
 run:
-	docker-compose -f docker/docker-compose.yaml up
+	$(DOCKER_COMPOSE) up
 
 create-migrations:
-	docker-compose run the-eye-app python3 manage.py makemigrations
+	$(APP) python3 manage.py makemigrations
 
 run-migrations:
-	docker-compose run the-eye-app python3 manage.py migrate
+	$(APP) python3 manage.py migrate
+
+tests:
+	$(APP) pytest
+
+clean-docker:
+	$(DOCKER_COMPOSE) down -v
+	docker rmi the-eye-image
