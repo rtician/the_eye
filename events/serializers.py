@@ -10,14 +10,14 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ('name', 'category', 'data', 'timestamp')
+        fields = ('name', 'category', 'data', 'timestamp', 'session')
 
-    def __init__(self, app, *args, **kwargs):
-        self.app = app
+    def __init__(self, *args, **kwargs):
+        self.app = kwargs.pop('app')
         super().__init__(*args, **kwargs)
 
     def validate(self, attrs):
-        session = attrs.pop('session')
+        session = attrs['session']
         try:
             Session.objects.get(id=session)
         except Session.DoesNotExist:
@@ -27,4 +27,8 @@ class EventSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        del validated_data['session']
+        event = Event(**validated_data)
         create_event.delay(validated_data)
+
+        return event

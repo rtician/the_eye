@@ -14,7 +14,7 @@ run-migrations:
 	$(APP) python3 manage.py migrate
 
 tests:
-	$(APP) pytest
+	$(APP) pytest -v
 
 clean-docker:
 	$(DOCKER_COMPOSE) down -v
